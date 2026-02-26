@@ -95,6 +95,7 @@ async def get_deduplication_summary():
             "duplicateFiles": 0,
             "duplicateGroups": 0,
             "totalSizeBytes": 0,
+            "totalDuplicateSize": 0,
             "hotFiles": 0,
             "warmFiles": 0,
             "coldFiles": 0
@@ -105,6 +106,7 @@ async def get_deduplication_summary():
         "duplicateFiles": latest_summary.get("duplicateFiles", 0),
         "duplicateGroups": duplicate_count,
         "totalSizeBytes": latest_summary.get("totalSizeBytes", 0),
+        "totalDuplicateSize": latest_summary.get("TotalDuplicateSize", 0),
         "hotFiles": latest_summary.get("hotFiles", 0),
         "warmFiles": latest_summary.get("warmFiles", 0),
         "coldFiles": latest_summary.get("coldFiles", 0)

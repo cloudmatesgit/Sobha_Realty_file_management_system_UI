@@ -80,6 +80,7 @@ export default function Deduplication() {
           estimated_savings: Math.round(data.duplicateFiles * 0.05), // example logic
           duplicate_files: data.duplicateFiles,
           duplicate_groups: data.duplicateGroups,
+          totalDuplicateSize: data.TotalDuplicateSize || data.totalDuplicateSize || 0,
           restores_in_progress: 0,
 
           by_tier: {
@@ -137,8 +138,8 @@ export default function Deduplication() {
           iconColor="text-info"
         />
         <StatCard
-          title="Potential Savings"
-          value={"-"}
+          title="Duplicate Storage"
+          value={metrics?.totalDuplicateSize ? formatNumber(metrics.totalDuplicateSize) : "-"}
           subtitle="space recoverable"
           icon={HardDrive}
           iconColor="text-success"
