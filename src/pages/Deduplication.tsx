@@ -139,7 +139,11 @@ export default function Deduplication() {
         />
         <StatCard
           title="Duplicate Storage"
-          value={metrics?.totalDuplicateSize ? formatNumber(metrics.totalDuplicateSize) : "-"}
+          value={
+            metrics?.totalDuplicateSize
+              ? formatBytes(metrics.totalDuplicateSize)
+              : "-"
+          }
           subtitle="space recoverable"
           icon={HardDrive}
           iconColor="text-success"
