@@ -161,7 +161,9 @@ export default function Reports() {
                   <SelectItem value="7d">Last 7 days</SelectItem>
                   <SelectItem value="30d">Last 30 days</SelectItem>
                   <SelectItem value="90d">Last 90 days</SelectItem>
-                  <SelectItem value="1y">Last year</SelectItem>
+                  <SelectItem value="6m">Last 6 months</SelectItem>
+                  <SelectItem value="1y">Last 1 year</SelectItem>
+                  <SelectItem value="2y">Last 2 years</SelectItem>
                   <SelectItem value="custom">Custom range</SelectItem>
                 </SelectContent>
               </Select>

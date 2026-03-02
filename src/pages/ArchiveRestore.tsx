@@ -93,7 +93,7 @@ export default function ArchiveRestore() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const limit = 100;
-  const [ageFilter, setAgeFilter] = useState<"30" | "60" | "90" | "custom">(
+  const [ageFilter, setAgeFilter] = useState<"30" | "60" | "90" | "6m" | "1y" | "2y" | "custom">(
     "30"
   );
   const archiveEnabled = false; // future me true kar sakte ho
@@ -102,6 +102,7 @@ export default function ArchiveRestore() {
     setStatusFilter("all");
     setSearchQuery("");
     setPendingQuery("");
+    setAgeFilter("30");
     setPage(0);
   };
   const toggleFileSelection = (fileId: string) => {
@@ -196,7 +197,7 @@ export default function ArchiveRestore() {
                   Clear
                 </Button>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 {[
                   { label: "30 Days", value: "HOT" },
                   { label: "60 Days", value: "WARM" },
@@ -224,6 +225,24 @@ export default function ArchiveRestore() {
                     {item.label}
                   </Button>
                 ))}
+                <Select
+                  value={ageFilter}
+                  onValueChange={(v) => setAgeFilter(v as typeof ageFilter)}
+                >
+                  <SelectTrigger className="w-40">
+                    <Clock className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Time Period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">Last 30 Days</SelectItem>
+                    <SelectItem value="60">Last 60 Days</SelectItem>
+                    <SelectItem value="90">Last 90 Days</SelectItem>
+                    <SelectItem value="6m">Last 6 Months</SelectItem>
+                    <SelectItem value="1y">Last 1 Year</SelectItem>
+                    <SelectItem value="2y">Last 2 Years</SelectItem>
+                    <SelectItem value="custom">Custom Range</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>

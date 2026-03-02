@@ -39,6 +39,7 @@ import {
   Trash2,
   FileText,
   Folder,
+  Clock,
 } from "lucide-react";
 import { Tier, FileStatus } from "@/types";
 
@@ -51,10 +52,12 @@ export default function FileInventory() {
     setStatusFilter("all");
     setSearchQuery("");
     setPendingQuery("");
+    setAgeFilter("30");
     setPage(0);
   };
   const [tierFilter, setTierFilter] = useState<Tier | "all">("all");
   const [statusFilter, setStatusFilter] = useState<FileStatus | "all">("all");
+  const [ageFilter, setAgeFilter] = useState<"30" | "60" | "90" | "6m" | "1y" | "2y" | "custom">("30");
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -186,6 +189,24 @@ export default function FileInventory() {
                   <SelectItem value="Archived">Archived</SelectItem>
                   <SelectItem value="Restoring">Restoring</SelectItem>
                   <SelectItem value="Pending">Pending</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={ageFilter}
+                onValueChange={(v) => setAgeFilter(v as typeof ageFilter)}
+              >
+                <SelectTrigger className="w-40">
+                  <Clock className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Time Period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30">Last 30 Days</SelectItem>
+                  <SelectItem value="60">Last 60 Days</SelectItem>
+                  <SelectItem value="90">Last 90 Days</SelectItem>
+                  <SelectItem value="6m">Last 6 Months</SelectItem>
+                  <SelectItem value="1y">Last 1 Year</SelectItem>
+                  <SelectItem value="2y">Last 2 Years</SelectItem>
+                  <SelectItem value="custom">Custom Range</SelectItem>
                 </SelectContent>
               </Select>
             </div>
