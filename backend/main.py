@@ -18,7 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MONGO_URI = os.environ.get("MONGO_URI") or "mongodb://scannerUser:StrongPassword123@localhost:27017/fileScanner?authSource=admin"
+MONGO_URI = "mongodb://scannerUser:StrongPassword123@localhost:27017/fileScanner?authSource=fileScanner"
 
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.fileScanner
