@@ -36,6 +36,7 @@ export default function Deduplication() {
   const [page, setPage] = useState(0);
   const limit = 25;
   const [metrics, setMetrics] = useState<any>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -71,58 +72,94 @@ export default function Deduplication() {
     );
   };
 
-  const exportReport = () => {
-    if (groups.length === 0) {
-      alert("No duplicate groups to export");
-      return;
-    }
+  const exportReport = async () => {
+    setExporting(true);
 
-    // Prepare CSV data
-    const csvRows: string[] = [];
+    try {
+      // Fetch all duplicate groups
+      const allGroups: any[] = [];
+      let skip = 0;
+      const batchSize = 100; // Fetch in batches of 100
+      let hasMore = true;
 
-    // CSV Header
-    csvRows.push("Fingerprint,File Path,File Name,Size (Bytes),Size (Formatted),Is Original,Potential Savings (Bytes),Potential Savings (Formatted),Group File Count");
+      while (hasMore) {
+        const response = await fetch(`/api/duplicates?skip=${skip}&limit=${batchSize}`);
+        if (!response.ok) throw new Error("Network response was not ok");
 
-    // CSV Data rows
-    groups.forEach((group) => {
-      group.files.forEach((file: any, index: number) => {
-        const fileName = (file.fullPath || "").split("/").pop() || "";
-        const isOriginal = index === 0 ? "Yes" : "No";
-        const potentialSavings = group.potentialSavings || 0;
+        const batch = await response.json();
 
-        csvRows.push(
-          [
-            `"${group.fingerprint || ""}"`,
-            `"${file.fullPath || ""}"`,
-            `"${fileName}"`,
-            file.sizeBytes || 0,
-            `"${formatBytes(file.sizeBytes || 0)}"`,
-            isOriginal,
-            potentialSavings,
-            `"${formatBytes(potentialSavings)}"`,
-            group.files.length,
-          ].join(",")
-        );
+        if (batch.length === 0) {
+          hasMore = false;
+        } else {
+          allGroups.push(...batch);
+          skip += batchSize;
+
+          // If we got less than batchSize, we've reached the end
+          if (batch.length < batchSize) {
+            hasMore = false;
+          }
+        }
+      }
+
+      if (allGroups.length === 0) {
+        alert("No duplicate groups to export");
+        return;
+      }
+
+      // Prepare CSV data
+      const csvRows: string[] = [];
+
+      // CSV Header
+      csvRows.push("Fingerprint,File Path,File Name,Size (Bytes),Size (Formatted),Is Original,Potential Savings (Bytes),Potential Savings (Formatted),Group File Count");
+
+      // CSV Data rows - export all groups
+      allGroups.forEach((group) => {
+        group.files.forEach((file: any, index: number) => {
+          const fileName = (file.fullPath || "").split("/").pop() || "";
+          const isOriginal = index === 0 ? "Yes" : "No";
+          const potentialSavings = group.potentialSavings || 0;
+
+          csvRows.push(
+            [
+              `"${group.fingerprint || ""}"`,
+              `"${file.fullPath || ""}"`,
+              `"${fileName}"`,
+              file.sizeBytes || 0,
+              `"${formatBytes(file.sizeBytes || 0)}"`,
+              isOriginal,
+              potentialSavings,
+              `"${formatBytes(potentialSavings)}"`,
+              group.files.length,
+            ].join(",")
+          );
+        });
       });
-    });
 
-    // Create CSV content
-    const csvContent = csvRows.join("\n");
+      // Create CSV content
+      const csvContent = csvRows.join("\n");
 
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
 
-    link.setAttribute("href", url);
-    link.setAttribute("download", `duplicate_report_${new Date().toISOString().split("T")[0]}.csv`);
-    link.style.visibility = "hidden";
+      link.setAttribute("href", url);
+      link.setAttribute("download", `duplicate_report_full_${new Date().toISOString().split("T")[0]}.csv`);
+      link.style.visibility = "hidden";
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
+
+      // Show success message
+      alert(`Successfully exported ${allGroups.length} duplicate groups with ${csvRows.length - 1} total files`);
+    } catch (err: any) {
+      alert(`Error exporting report: ${err.message}`);
+    } finally {
+      setExporting(false);
+    }
   };
 
   useEffect(() => {
@@ -164,9 +201,14 @@ export default function Deduplication() {
         description="Identify and manage duplicate files to reclaim storage space"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={exportReport}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportReport}
+              disabled={exporting}
+            >
               <Download className="h-4 w-4 mr-2" />
-              Export Report
+              {exporting ? "Exporting..." : "Export Report"}
             </Button>
             <Button size="sm">
               <Play className="h-4 w-4 mr-2" />
