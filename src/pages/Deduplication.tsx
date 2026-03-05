@@ -71,6 +71,60 @@ export default function Deduplication() {
     );
   };
 
+  const exportReport = () => {
+    if (groups.length === 0) {
+      alert("No duplicate groups to export");
+      return;
+    }
+
+    // Prepare CSV data
+    const csvRows: string[] = [];
+
+    // CSV Header
+    csvRows.push("Fingerprint,File Path,File Name,Size (Bytes),Size (Formatted),Is Original,Potential Savings (Bytes),Potential Savings (Formatted),Group File Count");
+
+    // CSV Data rows
+    groups.forEach((group) => {
+      group.files.forEach((file: any, index: number) => {
+        const fileName = (file.fullPath || "").split("/").pop() || "";
+        const isOriginal = index === 0 ? "Yes" : "No";
+        const potentialSavings = group.potentialSavings || 0;
+
+        csvRows.push(
+          [
+            `"${group.fingerprint || ""}"`,
+            `"${file.fullPath || ""}"`,
+            `"${fileName}"`,
+            file.sizeBytes || 0,
+            `"${formatBytes(file.sizeBytes || 0)}"`,
+            isOriginal,
+            potentialSavings,
+            `"${formatBytes(potentialSavings)}"`,
+            group.files.length,
+          ].join(",")
+        );
+      });
+    });
+
+    // Create CSV content
+    const csvContent = csvRows.join("\n");
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", `duplicate_report_${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     fetchDashboardData()
       .then((data) => {
@@ -110,7 +164,7 @@ export default function Deduplication() {
         description="Identify and manage duplicate files to reclaim storage space"
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={exportReport}>
               <Download className="h-4 w-4 mr-2" />
               Export Report
             </Button>
