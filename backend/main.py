@@ -222,8 +222,7 @@ async def list_files(
 
     # filter using last X days
     if max_days is not None and max_days > 0:
-        cutoff_date = datetime.utcnow() - timedelta(days=max_days)
-        filter_q["effectiveUserAccessAt"] = {"$gte": cutoff_date}
+     filter_q["daysSinceUserAccess"] = {"$gte": max_days}
 
     # filter using date range
     if start_date or end_date:
