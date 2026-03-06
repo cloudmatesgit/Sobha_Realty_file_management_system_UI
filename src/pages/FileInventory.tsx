@@ -52,12 +52,12 @@ export default function FileInventory() {
     setStatusFilter("all");
     setSearchQuery("");
     setPendingQuery("");
-    setAgeFilter("30");
+    setAgeFilter("all");
     setPage(0);
   };
   const [tierFilter, setTierFilter] = useState<Tier | "all">("all");
   const [statusFilter, setStatusFilter] = useState<FileStatus | "all">("all");
-  const [ageFilter, setAgeFilter] = useState<"30" | "60" | "90" | "6m" | "1y" | "2y" | "custom">("30");
+  const [ageFilter, setAgeFilter] = useState<"all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom">("all");
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,9 +94,10 @@ export default function FileInventory() {
 
   // Filter files by age/date
   const filteredFiles = files.filter((file) => {
-    // Apply age filter
-    if (ageFilter && ageFilter !== "custom") {
-      const fileDate = file.lastModified || file.lastAccessed || file.dateModified || file.modifiedDate;
+    // Apply age filter - use "Last Modified" date for filtering
+    if (ageFilter && ageFilter !== "all" && ageFilter !== "custom") {
+      // Use the same date fields that the table displays
+      const fileDate = file.modifiedAt || file.osAccessedAt || file.lastModified || file.lastAccessed;
       if (!fileDate) return false;
       
       const date = new Date(fileDate);
@@ -226,6 +227,7 @@ export default function FileInventory() {
                   <SelectValue placeholder="Time Period" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
                   <SelectItem value="30">Last 30 Days</SelectItem>
                   <SelectItem value="60">Last 60 Days</SelectItem>
                   <SelectItem value="90">Last 90 Days</SelectItem>

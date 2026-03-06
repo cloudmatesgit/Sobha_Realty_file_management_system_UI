@@ -76,19 +76,19 @@ export default function Deduplication() {
         return group.files.some((file: any) => {
           const fileDate = file.lastModified || file.createdAt || file.dateModified || file.modifiedDate;
           if (!fileDate) return false;
-          
+
           const date = new Date(fileDate);
           if (isNaN(date.getTime())) return false; // Invalid date
-          
+
           const fileYear = date.getFullYear();
-          
+
           if (yearFilter === "2024") return fileYear === 2024;
           if (yearFilter === "2023") return fileYear === 2023;
           if (yearFilter === "2022") return fileYear === 2022;
           if (yearFilter === "2021") return fileYear === 2021;
           if (yearFilter === "2020") return fileYear === 2020;
           if (yearFilter === "older") return fileYear < 2020;
-          
+
           return true;
         });
       });
@@ -149,19 +149,19 @@ export default function Deduplication() {
           return group.files.some((file: any) => {
             const fileDate = file.lastModified || file.createdAt || file.dateModified || file.modifiedDate;
             if (!fileDate) return false;
-            
+
             const date = new Date(fileDate);
             if (isNaN(date.getTime())) return false;
-            
+
             const fileYear = date.getFullYear();
-            
+
             if (yearFilter === "2024") return fileYear === 2024;
             if (yearFilter === "2023") return fileYear === 2023;
             if (yearFilter === "2022") return fileYear === 2022;
             if (yearFilter === "2021") return fileYear === 2021;
             if (yearFilter === "2020") return fileYear === 2020;
             if (yearFilter === "older") return fileYear < 2020;
-            
+
             return true;
           });
         });
