@@ -162,126 +162,128 @@ export default function FileInventory() {
       {/* Filters */}
       <Card className="mb-6">
         <CardContent className="pt-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex flex-1 items-center gap-2 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search files by name or path..."
-                className="pl-9"
-                value={pendingQuery}
-                onChange={(e) => setPendingQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") setSearchQuery(pendingQuery);
-                }}
-                style={{ minWidth: "300px" }}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSearchQuery(pendingQuery)}
-              >
-                Search
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="ml-2"
-                onClick={clearFilters}
-              >
-                Clear
-              </Button>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-1 items-center gap-2 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search files by name or path..."
+                  className="pl-9"
+                  value={pendingQuery}
+                  onChange={(e) => setPendingQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") setSearchQuery(pendingQuery);
+                  }}
+                  style={{ minWidth: "300px" }}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSearchQuery(pendingQuery)}
+                >
+                  Search
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={clearFilters}
+                >
+                  Clear
+                </Button>
+              </div>
+              <div className="flex gap-3 flex-wrap">
+                <Select
+                  value={tierFilter}
+                  onValueChange={(v) => setTierFilter(v as Tier | "all")}
+                >
+                  <SelectTrigger className="w-32">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Tier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Tiers</SelectItem>
+                    <SelectItem value="HOT">HOT</SelectItem>
+                    <SelectItem value="WARM">WARM</SelectItem>
+                    <SelectItem value="COLD">COLD</SelectItem>
+                    {/* <SelectItem value="ARCHIVE">ARCHIVE</SelectItem> */}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={statusFilter}
+                  onValueChange={(v) => setStatusFilter(v as FileStatus | "all")}
+                >
+                  <SelectTrigger className="w-36">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Local">Local</SelectItem>
+                    <SelectItem value="Archived">Archived</SelectItem>
+                    <SelectItem value="Restoring">Restoring</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={ageFilter}
+                  onValueChange={(v) => setAgeFilter(v as typeof ageFilter)}
+                >
+                  <SelectTrigger className="w-40">
+                    <Clock className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Time Period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="30">Last 30 Days</SelectItem>
+                    <SelectItem value="60">Last 60 Days</SelectItem>
+                    <SelectItem value="90">Last 90 Days</SelectItem>
+                    <SelectItem value="6m">Last 6 Months</SelectItem>
+                    <SelectItem value="1y">Last 1 Year</SelectItem>
+                    <SelectItem value="2y">Last 2 Years</SelectItem>
+                    <SelectItem value="custom">Custom Range</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex gap-3">
-              <Select
-                value={tierFilter}
-                onValueChange={(v) => setTierFilter(v as Tier | "all")}
-              >
-                <SelectTrigger className="w-32">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Tier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tiers</SelectItem>
-                  <SelectItem value="HOT">HOT</SelectItem>
-                  <SelectItem value="WARM">WARM</SelectItem>
-                  <SelectItem value="COLD">COLD</SelectItem>
-                  {/* <SelectItem value="ARCHIVE">ARCHIVE</SelectItem> */}
-                </SelectContent>
-              </Select>
-              <Select
-                value={statusFilter}
-                onValueChange={(v) => setStatusFilter(v as FileStatus | "all")}
-              >
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Local">Local</SelectItem>
-                  <SelectItem value="Archived">Archived</SelectItem>
-                  <SelectItem value="Restoring">Restoring</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                value={ageFilter}
-                onValueChange={(v) => setAgeFilter(v as typeof ageFilter)}
-              >
-                <SelectTrigger className="w-40">
-                  <Clock className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Time Period" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Time</SelectItem>
-                  <SelectItem value="30">Last 30 Days</SelectItem>
-                  <SelectItem value="60">Last 60 Days</SelectItem>
-                  <SelectItem value="90">Last 90 Days</SelectItem>
-                  <SelectItem value="6m">Last 6 Months</SelectItem>
-                  <SelectItem value="1y">Last 1 Year</SelectItem>
-                  <SelectItem value="2y">Last 2 Years</SelectItem>
-                  <SelectItem value="custom">Custom Range</SelectItem>
-                </SelectContent>
-              </Select>
-              {ageFilter === "custom" && (
-                <div className="flex gap-3 items-center bg-muted/50 p-2 rounded-lg border">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground font-medium">Start Date</label>
-                    <Input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      placeholder="YYYY-MM-DD"
-                      className="w-40"
-                    />
-                  </div>
-                  <span className="text-sm text-muted-foreground mt-5">to</span>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground font-medium">End Date</label>
-                    <Input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      placeholder="YYYY-MM-DD"
-                      className="w-40"
-                      min={startDate}
-                    />
-                  </div>
-                  {(startDate || endDate) && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setStartDate("");
-                        setEndDate("");
-                      }}
-                      className="mt-5"
-                    >
-                      Clear
-                    </Button>
-                  )}
+            {ageFilter === "custom" && (
+              <div className="flex flex-wrap gap-3 items-end pt-2 border-t">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-muted-foreground font-medium">Start Date</label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    placeholder="YYYY-MM-DD"
+                    className="w-40"
+                  />
                 </div>
-              )}
-            </div>
+                <span className="text-sm text-muted-foreground mb-2">to</span>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs text-muted-foreground font-medium">End Date</label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    placeholder="YYYY-MM-DD"
+                    className="w-40"
+                    min={startDate}
+                  />
+                </div>
+                {(startDate || endDate) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setStartDate("");
+                      setEndDate("");
+                    }}
+                    className="mb-0"
+                  >
+                    Clear Dates
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

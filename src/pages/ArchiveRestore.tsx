@@ -212,123 +212,125 @@ export default function ArchiveRestore() {
         </TabsList> */}
         <Card className="mb-6">
           <CardContent className="pt-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex flex-1 items-center gap-2 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search files by name or path..."
-                  className="pl-9"
-                  value={pendingQuery}
-                  onChange={(e) => setPendingQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") setSearchQuery(pendingQuery);
-                  }}
-                  style={{ minWidth: "300px" }}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSearchQuery(pendingQuery)}
-                >
-                  Search
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="ml-2"
-                  onClick={clearFilters}
-                >
-                  Clear
-                </Button>
-              </div>
-              <div className="flex gap-2 items-center">
-                {[
-                  { label: "30 Days", value: "HOT" },
-                  { label: "60 Days", value: "WARM" },
-                  { label: "90 Days", value: "COLD" },
-                ].map((item) => (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-1 items-center gap-2 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search files by name or path..."
+                    className="pl-9"
+                    value={pendingQuery}
+                    onChange={(e) => setPendingQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") setSearchQuery(pendingQuery);
+                    }}
+                    style={{ minWidth: "300px" }}
+                  />
                   <Button
-                    key={item.value}
+                    variant="outline"
                     size="sm"
-                    variant={tierFilter === item.value ? "default" : "outline"}
-                    className={`rounded-full px-4 font-medium ${tierFilter === item.value
-                      ? item.value === "HOT"
-                        ? "bg-red-600 text-white"
-                        : item.value === "WARM"
-                          ? "bg-yellow-500 text-black"
-                          : "bg-blue-600 text-white"
-                      : "text-muted-foreground"
-                      }`}
-                    onClick={() =>
-                      setTierFilter(
-                        tierFilter === item.value ? "all" : (item.value as Tier)
-                      )
-                    }
+                    onClick={() => setSearchQuery(pendingQuery)}
                   >
-                    {item.label}
+                    Search
                   </Button>
-                ))}
-                <Select
-                  value={ageFilter}
-                  onValueChange={(v) => {
-                    setAgeFilter(v as "all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom");
-                  }}
-                >
-                  <SelectTrigger className="w-40">
-                    <Clock className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Time Period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="30">Last 30 Days</SelectItem>
-                    <SelectItem value="60">Last 60 Days</SelectItem>
-                    <SelectItem value="90">Last 90 Days</SelectItem>
-                    <SelectItem value="6m">Last 6 Months</SelectItem>
-                    <SelectItem value="1y">Last 1 Year</SelectItem>
-                    <SelectItem value="2y">Last 2 Years</SelectItem>
-                    <SelectItem value="custom">Custom Range</SelectItem>
-                  </SelectContent>
-                </Select>
-                {ageFilter === "custom" && (
-                  <div className="flex gap-3 items-center bg-muted/50 p-2 rounded-lg border">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs text-muted-foreground font-medium">Start Date</label>
-                      <Input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        placeholder="YYYY-MM-DD"
-                        className="w-40"
-                      />
-                    </div>
-                    <span className="text-sm text-muted-foreground mt-5">to</span>
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs text-muted-foreground font-medium">End Date</label>
-                      <Input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        placeholder="YYYY-MM-DD"
-                        className="w-40"
-                        min={startDate}
-                      />
-                    </div>
-                    {(startDate || endDate) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setStartDate("");
-                          setEndDate("");
-                        }}
-                        className="mt-5"
-                      >
-                        Clear
-                      </Button>
-                    )}
-                  </div>
-                )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2"
+                    onClick={clearFilters}
+                  >
+                    Clear
+                  </Button>
+                </div>
+                <div className="flex gap-2 items-center flex-wrap">
+                  {[
+                    { label: "30 Days", value: "HOT" },
+                    { label: "60 Days", value: "WARM" },
+                    { label: "90 Days", value: "COLD" },
+                  ].map((item) => (
+                    <Button
+                      key={item.value}
+                      size="sm"
+                      variant={tierFilter === item.value ? "default" : "outline"}
+                      className={`rounded-full px-4 font-medium ${tierFilter === item.value
+                        ? item.value === "HOT"
+                          ? "bg-red-600 text-white"
+                          : item.value === "WARM"
+                            ? "bg-yellow-500 text-black"
+                            : "bg-blue-600 text-white"
+                        : "text-muted-foreground"
+                        }`}
+                      onClick={() =>
+                        setTierFilter(
+                          tierFilter === item.value ? "all" : (item.value as Tier)
+                        )
+                      }
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
+                  <Select
+                    value={ageFilter}
+                    onValueChange={(v) => {
+                      setAgeFilter(v as "all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom");
+                    }}
+                  >
+                    <SelectTrigger className="w-40">
+                      <Clock className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Time Period" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Time</SelectItem>
+                      <SelectItem value="30">Last 30 Days</SelectItem>
+                      <SelectItem value="60">Last 60 Days</SelectItem>
+                      <SelectItem value="90">Last 90 Days</SelectItem>
+                      <SelectItem value="6m">Last 6 Months</SelectItem>
+                      <SelectItem value="1y">Last 1 Year</SelectItem>
+                      <SelectItem value="2y">Last 2 Years</SelectItem>
+                      <SelectItem value="custom">Custom Range</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+              {ageFilter === "custom" && (
+                <div className="flex flex-wrap gap-3 items-end pt-2 border-t">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs text-muted-foreground font-medium">Start Date</label>
+                    <Input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      placeholder="YYYY-MM-DD"
+                      className="w-40"
+                    />
+                  </div>
+                  <span className="text-sm text-muted-foreground mb-2">to</span>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs text-muted-foreground font-medium">End Date</label>
+                    <Input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      placeholder="YYYY-MM-DD"
+                      className="w-40"
+                      min={startDate}
+                    />
+                  </div>
+                  {(startDate || endDate) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setStartDate("");
+                        setEndDate("");
+                      }}
+                      className="mb-0"
+                    >
+                      Clear Dates
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
