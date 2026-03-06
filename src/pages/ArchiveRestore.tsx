@@ -144,13 +144,13 @@ export default function ArchiveRestore() {
     };
     if (searchQuery) params.filename = searchQuery;
     if (tierFilter && tierFilter !== "all") params.tier = tierFilter;
-    
+
     // Add age filter to API call
     const maxDays = getMaxDays(ageFilter);
     if (maxDays !== null) {
       params.max_days = maxDays;
     }
-    
+
     const searchStr = Object.entries(params)
       .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
       .join("&");
@@ -236,15 +236,14 @@ export default function ArchiveRestore() {
                     key={item.value}
                     size="sm"
                     variant={tierFilter === item.value ? "default" : "outline"}
-                    className={`rounded-full px-4 font-medium ${
-                      tierFilter === item.value
-                        ? item.value === "HOT"
-                          ? "bg-red-600 text-white"
-                          : item.value === "WARM"
+                    className={`rounded-full px-4 font-medium ${tierFilter === item.value
+                      ? item.value === "HOT"
+                        ? "bg-red-600 text-white"
+                        : item.value === "WARM"
                           ? "bg-yellow-500 text-black"
                           : "bg-blue-600 text-white"
-                        : "text-muted-foreground"
-                    }`}
+                      : "text-muted-foreground"
+                      }`}
                     onClick={() =>
                       setTierFilter(
                         tierFilter === item.value ? "all" : (item.value as Tier)
@@ -256,7 +255,9 @@ export default function ArchiveRestore() {
                 ))}
                 <Select
                   value={ageFilter}
-                  onValueChange={(v) => setAgeFilter(v as typeof ageFilter)}
+                  onValueChange={(v) => {
+                    setAgeFilter(v as "all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom");
+                  }}
                 >
                   <SelectTrigger className="w-40">
                     <Clock className="h-4 w-4 mr-2" />
@@ -336,7 +337,7 @@ export default function ArchiveRestore() {
                         <div className="flex justify-end gap-3 mt-6">
                           <Button
                             variant="outline"
-                            // onClick={() => setRestoreDialogOpen(false)}
+                          // onClick={() => setRestoreDialogOpen(false)}
                           >
                             Cancel
                           </Button>
