@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from typing import List, Optional
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -32,6 +33,7 @@ async def list_files(
     min_size: int | None = None,
     max_size: int | None = None,
     tier: str | None = None,   # 👈 HOT / WARM / COLD
+    max_days: int | None = None,  # 👈 Filter by days since user access (30, 60, 90, 180, 365, 730)
 ):
     filter_q = {}
 
@@ -55,6 +57,11 @@ async def list_files(
     # 🧊 tier filter (HOT / WARM / COLD)
     if tier and tier.lower() != "all":
         filter_q["accessClass"] = tier.upper()
+
+    # 📅 date filter based on daysSinceUserAccess
+    if max_days is not None and max_days > 0:
+        # Filter files where daysSinceUserAccess <= max_days
+        filter_q["daysSinceUserAccess"] = {"$lte": max_days}
 
     cursor = (
         db.FileMetaAccess

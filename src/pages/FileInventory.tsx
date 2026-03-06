@@ -64,6 +64,28 @@ export default function FileInventory() {
   const [page, setPage] = useState(0);
   const limit = 100;
 
+  // Convert age filter to max_days for API
+  const getMaxDays = (filter: string): number | null => {
+    switch (filter) {
+      case "30":
+        return 30;
+      case "60":
+        return 60;
+      case "90":
+        return 90;
+      case "6m":
+        return 180;
+      case "1y":
+        return 365;
+      case "2y":
+        return 730;
+      case "all":
+      case "custom":
+      default:
+        return null;
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -73,7 +95,13 @@ export default function FileInventory() {
     };
     if (searchQuery) params.filename = searchQuery;
     if (tierFilter && tierFilter !== "all") params.tier = tierFilter;
-    // If you want to filter by status, add here: params.status = statusFilter;
+    
+    // Add age filter to API call
+    const maxDays = getMaxDays(ageFilter);
+    if (maxDays !== null) {
+      params.max_days = maxDays;
+    }
+    
     const searchStr = Object.entries(params)
       .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
       .join("&");
@@ -90,48 +118,10 @@ export default function FileInventory() {
         setError(err.message);
         setLoading(false);
       });
-  }, [page, searchQuery, tierFilter, limit]);
+  }, [page, searchQuery, tierFilter, ageFilter, limit]);
 
-  // Filter files by age/date
-  const filteredFiles = files.filter((file) => {
-    // Apply age filter - use "Last Modified" date for filtering
-    if (ageFilter && ageFilter !== "all" && ageFilter !== "custom") {
-      // Use the same date fields that the table displays
-      const fileDate = file.modifiedAt || file.osAccessedAt || file.lastModified || file.lastAccessed;
-      if (!fileDate) return false;
-      
-      const date = new Date(fileDate);
-      if (isNaN(date.getTime())) return false;
-      
-      const now = new Date();
-      const daysDiff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-      
-      switch (ageFilter) {
-        case "30":
-          if (daysDiff > 30) return false;
-          break;
-        case "60":
-          if (daysDiff > 60) return false;
-          break;
-        case "90":
-          if (daysDiff > 90) return false;
-          break;
-        case "6m":
-          if (daysDiff > 180) return false;
-          break;
-        case "1y":
-          if (daysDiff > 365) return false;
-          break;
-        case "2y":
-          if (daysDiff > 730) return false;
-          break;
-        default:
-          break;
-      }
-    }
-    
-    return true;
-  });
+  // No client-side filtering needed - API handles it
+  const filteredFiles = files;
 
   useEffect(() => {
     setPage(0);
