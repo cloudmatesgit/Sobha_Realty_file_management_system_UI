@@ -290,22 +290,42 @@ export default function ArchiveRestore() {
                   </SelectContent>
                 </Select>
                 {ageFilter === "custom" && (
-                  <div className="flex gap-2 items-center">
-                    <Input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      placeholder="Start Date"
-                      className="w-40"
-                    />
-                    <span className="text-sm text-muted-foreground">to</span>
-                    <Input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      placeholder="End Date"
-                      className="w-40"
-                    />
+                  <div className="flex gap-3 items-center bg-muted/50 p-2 rounded-lg border">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-muted-foreground font-medium">Start Date</label>
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        placeholder="YYYY-MM-DD"
+                        className="w-40"
+                      />
+                    </div>
+                    <span className="text-sm text-muted-foreground mt-5">to</span>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs text-muted-foreground font-medium">End Date</label>
+                      <Input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        placeholder="YYYY-MM-DD"
+                        className="w-40"
+                        min={startDate}
+                      />
+                    </div>
+                    {(startDate || endDate) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setStartDate("");
+                          setEndDate("");
+                        }}
+                        className="mt-5"
+                      >
+                        Clear
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
