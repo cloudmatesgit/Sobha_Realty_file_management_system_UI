@@ -23,7 +23,15 @@ import {
   FileText,
   Folder,
   HardDrive,
+  Clock,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 import { fetchDashboardData } from "@/api/dashboard";
 
@@ -37,6 +45,8 @@ export default function Deduplication() {
   const limit = 25;
   const [metrics, setMetrics] = useState<any>(null);
   const [exporting, setExporting] = useState(false);
+  const [yearFilter, setYearFilter] = useState<string>("all");
+  const [allGroups, setAllGroups] = useState<any[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -46,7 +56,7 @@ export default function Deduplication() {
         return res.json();
       })
       .then((data) => {
-        setGroups(data);
+        setAllGroups(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -54,6 +64,37 @@ export default function Deduplication() {
         setLoading(false);
       });
   }, [page]);
+
+  // Filter groups by year
+  useEffect(() => {
+    setPage(0); // Reset to first page when filter changes
+    if (yearFilter === "all") {
+      setGroups(allGroups);
+    } else {
+      const filtered = allGroups.filter((group) => {
+        // Check if any file in the group matches the year filter
+        return group.files.some((file: any) => {
+          const fileDate = file.lastModified || file.createdAt || file.dateModified || file.modifiedDate;
+          if (!fileDate) return false;
+          
+          const date = new Date(fileDate);
+          if (isNaN(date.getTime())) return false; // Invalid date
+          
+          const fileYear = date.getFullYear();
+          
+          if (yearFilter === "2024") return fileYear === 2024;
+          if (yearFilter === "2023") return fileYear === 2023;
+          if (yearFilter === "2022") return fileYear === 2022;
+          if (yearFilter === "2021") return fileYear === 2021;
+          if (yearFilter === "2020") return fileYear === 2020;
+          if (yearFilter === "older") return fileYear < 2020;
+          
+          return true;
+        });
+      });
+      setGroups(filtered);
+    }
+  }, [yearFilter, allGroups]);
 
   const totalPotentialSavings = groups.reduce(
     (acc, group) => acc + (group.potentialSavings || 0),
@@ -101,8 +142,33 @@ export default function Deduplication() {
         }
       }
 
-      if (allGroups.length === 0) {
-        alert("No duplicate groups to export");
+      // Apply year filter if selected
+      let groupsToExport = allGroups;
+      if (yearFilter !== "all") {
+        groupsToExport = allGroups.filter((group) => {
+          return group.files.some((file: any) => {
+            const fileDate = file.lastModified || file.createdAt || file.dateModified || file.modifiedDate;
+            if (!fileDate) return false;
+            
+            const date = new Date(fileDate);
+            if (isNaN(date.getTime())) return false;
+            
+            const fileYear = date.getFullYear();
+            
+            if (yearFilter === "2024") return fileYear === 2024;
+            if (yearFilter === "2023") return fileYear === 2023;
+            if (yearFilter === "2022") return fileYear === 2022;
+            if (yearFilter === "2021") return fileYear === 2021;
+            if (yearFilter === "2020") return fileYear === 2020;
+            if (yearFilter === "older") return fileYear < 2020;
+            
+            return true;
+          });
+        });
+      }
+
+      if (groupsToExport.length === 0) {
+        alert("No duplicate groups to export for the selected year filter");
         return;
       }
 
@@ -112,8 +178,8 @@ export default function Deduplication() {
       // CSV Header
       csvRows.push("Fingerprint,File Path,File Name,Size (Bytes),Size (Formatted),Is Original,Potential Savings (Bytes),Potential Savings (Formatted),Group File Count");
 
-      // CSV Data rows - export all groups
-      allGroups.forEach((group) => {
+      // CSV Data rows - export filtered groups
+      groupsToExport.forEach((group) => {
         group.files.forEach((file: any, index: number) => {
           const fileName = (file.fullPath || "").split("/").pop() || "";
           const isOriginal = index === 0 ? "Yes" : "No";
@@ -144,7 +210,8 @@ export default function Deduplication() {
       const url = URL.createObjectURL(blob);
 
       link.setAttribute("href", url);
-      link.setAttribute("download", `duplicate_report_full_${new Date().toISOString().split("T")[0]}.csv`);
+      const yearSuffix = yearFilter !== "all" ? `_${yearFilter}` : "_full";
+      link.setAttribute("download", `duplicate_report${yearSuffix}_${new Date().toISOString().split("T")[0]}.csv`);
       link.style.visibility = "hidden";
 
       document.body.appendChild(link);
@@ -154,7 +221,8 @@ export default function Deduplication() {
       URL.revokeObjectURL(url);
 
       // Show success message
-      alert(`Successfully exported ${allGroups.length} duplicate groups with ${csvRows.length - 1} total files`);
+      const filterText = yearFilter !== "all" ? ` (filtered by ${yearFilter})` : "";
+      alert(`Successfully exported ${groupsToExport.length} duplicate groups${filterText} with ${csvRows.length - 1} total files`);
     } catch (err: any) {
       alert(`Error exporting report: ${err.message}`);
     } finally {
@@ -217,6 +285,41 @@ export default function Deduplication() {
           </div>
         }
       />
+      {/* Year Filter */}
+      <Card className="mb-6">
+        <CardContent className="pt-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filter by Year:</span>
+            </div>
+            <Select value={yearFilter} onValueChange={setYearFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Years</SelectItem>
+                <SelectItem value="2024">2024</SelectItem>
+                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value="2022">2022</SelectItem>
+                <SelectItem value="2021">2021</SelectItem>
+                <SelectItem value="2020">2020</SelectItem>
+                <SelectItem value="older">Older than 2020</SelectItem>
+              </SelectContent>
+            </Select>
+            {yearFilter !== "all" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setYearFilter("all")}
+              >
+                Clear Filter
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <StatCard
@@ -387,7 +490,9 @@ export default function Deduplication() {
         >
           Previous
         </Button>
-        <span className="text-sm">Page {page + 1}</span>
+        <span className="text-sm">
+          Page {page + 1} {yearFilter !== "all" && `(${groups.length} filtered)`}
+        </span>
         <Button
           variant="outline"
           size="sm"

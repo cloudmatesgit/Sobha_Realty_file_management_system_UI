@@ -141,12 +141,50 @@ export default function ArchiveRestore() {
       });
   }, [page, searchQuery, tierFilter, limit]);
 
-  const filteredFiles = files;
+  // Filter files by age/date
+  const filteredFiles = files.filter((file) => {
+    // Apply age filter
+    if (ageFilter && ageFilter !== "custom") {
+      const fileDate = file.lastModified || file.lastAccessed || file.dateModified || file.modifiedDate || file.requestedAt;
+      if (!fileDate) return false;
+      
+      const date = new Date(fileDate);
+      if (isNaN(date.getTime())) return false;
+      
+      const now = new Date();
+      const daysDiff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+      
+      switch (ageFilter) {
+        case "30":
+          if (daysDiff > 30) return false;
+          break;
+        case "60":
+          if (daysDiff > 60) return false;
+          break;
+        case "90":
+          if (daysDiff > 90) return false;
+          break;
+        case "6m":
+          if (daysDiff > 180) return false;
+          break;
+        case "1y":
+          if (daysDiff > 365) return false;
+          break;
+        case "2y":
+          if (daysDiff > 730) return false;
+          break;
+        default:
+          break;
+      }
+    }
+    
+    return true;
+  });
 
   useEffect(() => {
     setPage(0);
-    setPendingQuery(""); // Clear the search box when tier changes
-  }, [tierFilter]);
+    setPendingQuery(""); // Clear the search box when tier or age filter changes
+  }, [tierFilter, ageFilter]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
