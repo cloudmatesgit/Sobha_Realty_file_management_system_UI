@@ -59,7 +59,9 @@ export default function FileInventory() {
   };
   const [tierFilter, setTierFilter] = useState<Tier | "all">("all");
   const [statusFilter, setStatusFilter] = useState<FileStatus | "all">("all");
-  const [ageFilter, setAgeFilter] = useState<"all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom">("all");
+  const [ageFilter, setAgeFilter] = useState<
+    "all" | "30" | "60" | "90" | "1y" | "2y" | "3y" | "4y" | "custom"
+  >("all");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [files, setFiles] = useState<any[]>([]);
@@ -77,12 +79,14 @@ export default function FileInventory() {
         return 60;
       case "90":
         return 90;
-      case "6m":
-        return 180;
       case "1y":
         return 365;
       case "2y":
         return 730;
+      case "3y":
+        return 1095;
+      case "4y":
+        return 1460;
       case "all":
       case "custom":
       default:
@@ -99,7 +103,7 @@ export default function FileInventory() {
     };
     if (searchQuery) params.filename = searchQuery;
     if (tierFilter && tierFilter !== "all") params.tier = tierFilter;
-    
+
     // Add date filter to API call based on backend support
     if (ageFilter === "custom") {
       // Use date range for custom filter
@@ -116,7 +120,7 @@ export default function FileInventory() {
         params.max_days = maxDays;
       }
     }
-    
+
     const searchStr = Object.entries(params)
       .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
       .join("&");
@@ -237,9 +241,10 @@ export default function FileInventory() {
                     <SelectItem value="30">Last 30 Days</SelectItem>
                     <SelectItem value="60">Last 60 Days</SelectItem>
                     <SelectItem value="90">Last 90 Days</SelectItem>
-                    <SelectItem value="6m">Last 6 Months</SelectItem>
                     <SelectItem value="1y">Last 1 Year</SelectItem>
                     <SelectItem value="2y">Last 2 Years</SelectItem>
+                    <SelectItem value="3y">Last 3 Years</SelectItem>
+                    <SelectItem value="4y">Last 4 Years</SelectItem>
                     <SelectItem value="custom">Custom Range</SelectItem>
                   </SelectContent>
                 </Select>

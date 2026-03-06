@@ -93,9 +93,9 @@ export default function ArchiveRestore() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const limit = 100;
-  const [ageFilter, setAgeFilter] = useState<"all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom">(
-    "all"
-  );
+  const [ageFilter, setAgeFilter] = useState<
+    "all" | "30" | "60" | "90" | "1y" | "2y" | "3y" | "4y" | "custom"
+  >("all");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const archiveEnabled = false; // future me true kar sakte ho
@@ -126,12 +126,14 @@ export default function ArchiveRestore() {
         return 60;
       case "90":
         return 90;
-      case "6m":
-        return 180;
       case "1y":
         return 365;
       case "2y":
         return 730;
+      case "3y":
+        return 1095;
+      case "4y":
+        return 1460;
       case "all":
       case "custom":
       default:
@@ -242,38 +244,42 @@ export default function ArchiveRestore() {
                     Clear
                   </Button>
                 </div>
-                <div className="flex gap-2 items-center flex-wrap">
-                  {[
-                    { label: "30 Days", value: "HOT" },
-                    { label: "60 Days", value: "WARM" },
-                    { label: "90 Days", value: "COLD" },
-                  ].map((item) => (
-                    <Button
-                      key={item.value}
-                      size="sm"
-                      variant={tierFilter === item.value ? "default" : "outline"}
-                      className={`rounded-full px-4 font-medium ${tierFilter === item.value
-                        ? item.value === "HOT"
-                          ? "bg-red-600 text-white"
-                          : item.value === "WARM"
-                            ? "bg-yellow-500 text-black"
-                            : "bg-blue-600 text-white"
-                        : "text-muted-foreground"
-                        }`}
-                      onClick={() =>
-                        setTierFilter(
-                          tierFilter === item.value ? "all" : (item.value as Tier)
-                        )
-                      }
-                    >
-                      {item.label}
-                    </Button>
-                  ))}
+                <div className="flex gap-3 flex-wrap">
+                  <Select
+                    value={tierFilter}
+                    onValueChange={(v) => setTierFilter(v as Tier | "all")}
+                  >
+                    <SelectTrigger className="w-32">
+                      <Filter className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Tier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Tiers</SelectItem>
+                      <SelectItem value="HOT">HOT</SelectItem>
+                      <SelectItem value="WARM">WARM</SelectItem>
+                      <SelectItem value="COLD">COLD</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(v) => setStatusFilter(v as FileStatus | "all")}
+                  >
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="Local">Local</SelectItem>
+                      <SelectItem value="Archived">Archived</SelectItem>
+                      <SelectItem value="Restoring">Restoring</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <Select
                     value={ageFilter}
-                    onValueChange={(v) => {
-                      setAgeFilter(v as "all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom");
-                    }}
+                    onValueChange={(v) => setAgeFilter(v as typeof ageFilter)}
                   >
                     <SelectTrigger className="w-40">
                       <Clock className="h-4 w-4 mr-2" />
@@ -284,9 +290,10 @@ export default function ArchiveRestore() {
                       <SelectItem value="30">Last 30 Days</SelectItem>
                       <SelectItem value="60">Last 60 Days</SelectItem>
                       <SelectItem value="90">Last 90 Days</SelectItem>
-                      <SelectItem value="6m">Last 6 Months</SelectItem>
                       <SelectItem value="1y">Last 1 Year</SelectItem>
                       <SelectItem value="2y">Last 2 Years</SelectItem>
+                      <SelectItem value="3y">Last 3 Years</SelectItem>
+                      <SelectItem value="4y">Last 4 Years</SelectItem>
                       <SelectItem value="custom">Custom Range</SelectItem>
                     </SelectContent>
                   </Select>

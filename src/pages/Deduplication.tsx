@@ -285,41 +285,6 @@ export default function Deduplication() {
           </div>
         }
       />
-      {/* Year Filter */}
-      <Card className="mb-6">
-        <CardContent className="pt-4">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Filter by Year:</span>
-            </div>
-            <Select value={yearFilter} onValueChange={setYearFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2022">2022</SelectItem>
-                <SelectItem value="2021">2021</SelectItem>
-                <SelectItem value="2020">2020</SelectItem>
-                <SelectItem value="older">Older than 2020</SelectItem>
-              </SelectContent>
-            </Select>
-            {yearFilter !== "all" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setYearFilter("all")}
-              >
-                Clear Filter
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <StatCard
