@@ -58,10 +58,14 @@ async def list_files(
     if tier and tier.lower() != "all":
         filter_q["accessClass"] = tier.upper()
 
-    # 📅 date filter based on daysSinceUserAccess
+    # 📅 date filter based on effectiveUserAccessAt
     if max_days is not None and max_days > 0:
-        # Filter files where daysSinceUserAccess <= max_days
-        filter_q["daysSinceUserAccess"] = {"$lte": max_days}
+        # Calculate the cutoff date (max_days ago from now)
+        cutoff_date = datetime.utcnow() - timedelta(days=max_days)
+        # Filter files where effectiveUserAccessAt is within the last max_days
+        # Convert to ISO string format for MongoDB string date comparison
+        cutoff_date_str = cutoff_date.strftime("%Y-%m-%dT%H:%M:%S")
+        filter_q["effectiveUserAccessAt"] = {"$gte": cutoff_date_str}
 
     cursor = (
         db.FileMetaAccess
