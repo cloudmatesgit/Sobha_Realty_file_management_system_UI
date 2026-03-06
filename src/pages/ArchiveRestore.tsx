@@ -96,6 +96,8 @@ export default function ArchiveRestore() {
   const [ageFilter, setAgeFilter] = useState<"all" | "30" | "60" | "90" | "6m" | "1y" | "2y" | "custom">(
     "all"
   );
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const archiveEnabled = false; // future me true kar sakte ho
   const clearFilters = () => {
     setTierFilter("all");
@@ -103,6 +105,8 @@ export default function ArchiveRestore() {
     setSearchQuery("");
     setPendingQuery("");
     setAgeFilter("all");
+    setStartDate("");
+    setEndDate("");
     setPage(0);
   };
   const toggleFileSelection = (fileId: string) => {
@@ -145,10 +149,21 @@ export default function ArchiveRestore() {
     if (searchQuery) params.filename = searchQuery;
     if (tierFilter && tierFilter !== "all") params.tier = tierFilter;
 
-    // Add age filter to API call
-    const maxDays = getMaxDays(ageFilter);
-    if (maxDays !== null) {
-      params.max_days = maxDays;
+    // Add date filter to API call based on backend support
+    if (ageFilter === "custom") {
+      // Use date range for custom filter
+      if (startDate) {
+        params.start_date = startDate;
+      }
+      if (endDate) {
+        params.end_date = endDate;
+      }
+    } else {
+      // Use max_days for predefined filters
+      const maxDays = getMaxDays(ageFilter);
+      if (maxDays !== null) {
+        params.max_days = maxDays;
+      }
     }
 
     const searchStr = Object.entries(params)
@@ -167,7 +182,7 @@ export default function ArchiveRestore() {
         setError(err.message);
         setLoading(false);
       });
-  }, [page, searchQuery, tierFilter, ageFilter, limit]);
+  }, [page, searchQuery, tierFilter, ageFilter, startDate, endDate, limit]);
 
   // No client-side filtering needed - API handles it
   const filteredFiles = files;
@@ -175,7 +190,7 @@ export default function ArchiveRestore() {
   useEffect(() => {
     setPage(0);
     setPendingQuery(""); // Clear the search box when tier or age filter changes
-  }, [tierFilter, ageFilter]);
+  }, [tierFilter, ageFilter, startDate, endDate]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -274,6 +289,25 @@ export default function ArchiveRestore() {
                     <SelectItem value="custom">Custom Range</SelectItem>
                   </SelectContent>
                 </Select>
+                {ageFilter === "custom" && (
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      placeholder="Start Date"
+                      className="w-40"
+                    />
+                    <span className="text-sm text-muted-foreground">to</span>
+                    <Input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      placeholder="End Date"
+                      className="w-40"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
