@@ -189,6 +189,12 @@ export default function ArchiveRestore() {
   // No client-side filtering needed - API handles it
   const filteredFiles = files;
 
+  // Total size of all currently listed files (after filters/pagination)
+  const totalSizeBytes = filteredFiles.reduce(
+    (sum, file) => sum + (file.sizeBytes ?? 0),
+    0
+  );
+
   useEffect(() => {
     setPage(0);
     setPendingQuery(""); // Clear the search box when tier or age filter changes
@@ -202,7 +208,7 @@ export default function ArchiveRestore() {
       <PageHeader title="Archive" description="Manage archived files" />
 
       <Tabs defaultValue="archived" className="space-y-4">
-        {/* <TabsList>
+        {/* <TabsList></TabsList>
           <TabsTrigger value="archived">
             <Archive className="h-4 w-4 mr-2" />
             Archived Files
@@ -551,7 +557,10 @@ export default function ArchiveRestore() {
       </Tabs>
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm text-muted-foreground">
-          Showing {filteredFiles.length} files
+          Showing {filteredFiles.length} files, total size{" "}
+          <span className="font-mono font-medium">
+            {formatBytes(totalSizeBytes)}
+          </span>
         </p>
         <div className="flex gap-2">
           <Button
